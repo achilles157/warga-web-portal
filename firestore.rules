@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Specific Collection Rules (Web Portal) ---
+
+    // Public Profiles
+    match /users_collection/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Articles
+    match /articles_collection/{articleId} {
+      // Allow public read if published
+      // (Authenticated read is covered by the wildcard match below)
+      allow read: if resource.data.editorial.status == 'published';
+      
+      // Allow any auth user to create
+      allow create: if request.auth != null;
+      
+      // Allow author to update
+      // (Admin update is covered by the wildcard match below)
+      allow update: if request.auth != null && resource.data.editorial.author_id == request.auth.uid;
+    }
+
+    // --- Specific Collection Rules (WargaPlus App) ---
+
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // --- Global / Fallback Rules ---
+    // This handles:
+    // 1. Authenticated Read for ALL collections (including drafts, legacy data)
+    // 2. Admin Write for ALL collections
+    match /{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.token.email == 'bungwarga@gmail.com';
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "__collection_notes": "Ini adalah representasi struktur NoSQL Firestore untuk Portal Berita WargaPlus",
+  "users_collection": {
+    "user_id_123 (Auto ID)": {
+      "display_name": "Bung Warga",
+      "email": "editor@wargaplus.id",
+      "photo_url": "https://firebasestorage.../bung_warga.png",
+      "role": "admin",
+      // Role options: 'admin' (Redaktur), 'staff' (Internal), 'contributor' (Public)
+      "bio": "Editor in Chief WargaPlus.",
+      "created_at": "2025-01-01T10:00:00Z"
+    },
+    "user_id_456 (Auto ID)": {
+      "display_name": "Mahasiswa Kritis",
+      "email": "mahasiswa@univ.ac.id",
+      "photo_url": "...",
+      "role": "contributor",
+      "bio": "Aktif di pers mahasiswa.",
+      "created_at": "2025-05-20T10:00:00Z"
+    }
+  },
+  "articles_collection": {
+    "article_id_abc (Auto ID)": {
+      "meta": {
+        "slug": "investigasi-banjir-sumatera",
+        "title": "Sumatera Tenggelam: Bencana yang Disponsori Negara",
+        "subtitle": "Menguak tabir revisi RTRW dan pasal pemutihan yang melegalkan kerusakan.",
+        "cover_image": "https://firebasestorage.../banjir_cover.jpg",
+        "tags": [
+          "Investigasi",
+          "Lingkungan",
+          "Sumatera"
+        ],
+        "read_time_minutes": 5
+      },
+      "content": {
+        "body": "# Pendahuluan\n\nBanjir di Sumatera bukan takdir... (Isi artikel panjang format Markdown/HTML)...",
+        "is_locked": true,
+        "locked_from_paragraph": 6,
+        // Logic: Tampilkan paragraf 1-6, sisanya blur.
+        "lock_cta_text": "Buka Dokumen Asli RTRW & Peta Konsesi",
+        "linked_module_id": "bencanasumatra",
+        // ID ini HARUS sama dengan ID modul di JSON App
+        "linked_sub_module_id": "sub_03_dokumen_tata_kelola"
+        // Opsional: Deep link spesifik ke sub-modul
+      },
+      "editorial": {
+        "author_id": "user_id_123", // Referensi ke users collection
+        "author_name": "Tim Riset Warga", // Denormalisasi agar gak perlu query ulang
+        "status": "published",
+        // Options: 'draft', 'pending_review', 'published', 'rejected'
+        "created_at": "2025-06-01T08:00:00Z",
+        "published_at": "2025-06-01T09:00:00Z",
+        "reviewer_id": null, // Diisi jika artikel ini hasil review kontributor
+        "rejection_reason": null // Diisi jika status rejected
+      },
+      "metrics": {
+        "views": 1540,
+        "app_clicks": 320 // Berapa orang yang klik tombol 'Buka di App'
+      }
+    },
+    "article_id_draft_789": {
+      "meta": {
+        "slug": "opini-mahasiswa-soal-kuhap",
+        "title": "KUHAP Baru: Kematian Demokrasi?",
+        "subtitle": "Pandangan mahasiswa hukum terhadap pasal karet.",
+        "cover_image": "...",
+        "tags": [
+          "Opini",
+          "Hukum"
+        ]
+      },
+      "content": {
+        "body": "Saya merasa resah...",
+        "is_locked": false, // Artikel opini biasanya gratis full
+        "linked_module_id": null
+      },
+      "editorial": {
+        "author_id": "user_id_456", // Si Mahasiswa
+        "author_name": "Mahasiswa Kritis",
+        "status": "pending_review", // Menunggu Redaktur
+        "created_at": "2025-06-02T10:00:00Z",
+        "published_at": null
+      }
+    }
+  }
+}

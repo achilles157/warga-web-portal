@@ -1,0 +1,87 @@
+{
+    "indexes": [
+        {
+            "collectionGroup": "articles_collection",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "meta.tags",
+                    "arrayConfig": "CONTAINS"
+                },
+                {
+                    "fieldPath": "editorial.status",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.published_at",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "articles_collection",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "editorial.status",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.published_at",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "articles_collection",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "editorial.author_id",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.status",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.published_at",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "articles_collection",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "meta.slug",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.status",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.published_at",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "articles_collection",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "editorial.status",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.created_at",
+                    "order": "DESCENDING"
+                }
+            ]
+        }
+    ],
+    "fieldOverrides": []
+}
