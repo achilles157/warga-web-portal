@@ -26,7 +26,11 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: "https://wargadaily.com/",
     siteName: "Warga Daily"
-  }
+  },
+  icons: {
+    icon: "/images/new_logo.png",
+    apple: "/images/new_logo.png",
+  },
 };
 
 import { AuthProvider } from "@/components/auth/AuthContext";

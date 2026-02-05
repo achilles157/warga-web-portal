@@ -4,7 +4,7 @@ import { User as FirebaseUser } from "firebase/auth";
 
 export interface UserProfile {
     uid: string;
-    email: string;
+    email?: string; // Optional because we don't save it to public profile anymore
     display_name: string;
     photo_url: string;
     role: "admin" | "staff" | "contributor";
@@ -27,12 +27,8 @@ export async function syncUser(user: FirebaseUser, overrides?: Partial<UserProfi
         // New User -> Default role is 'contributor'
         const newUser: UserProfile = {
             uid: user.uid,
-            email: user.email || "",
+            // email: user.email, // REMOVED for Privacy. Email is PII and should not be public.
             display_name: overrides?.display_name || user.displayName || "Warga Baru",
-            photo_url: user.photoURL || "",
-            role: "contributor",
-            bio: "",
-            created_at: serverTimestamp(),
             last_login_at: serverTimestamp(),
             ...overrides,
         };

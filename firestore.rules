@@ -31,12 +31,16 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // --- Global / Fallback Rules ---
-    // This handles:
-    // 1. Authenticated Read for ALL collections (including drafts, legacy data)
-    // 2. Admin Write for ALL collections
-    match /{document=**} {
+    // --- Specific Collection Rules (WargaPlus App content) ---
+    match /releases/{releaseId} {
       allow read: if request.auth != null;
+    }
+
+    // --- Global / Fallback Rules ---
+    // Removed global 'read' to prevent leaking Drafts/Hidden data.
+    // Admin (Bung Warga) retains super-admin write access.
+    match /{document=**} {
+      allow read: if false; // Deny by default
       allow write: if request.auth != null && request.auth.token.email == 'bungwarga@gmail.com';
     }
   }
