@@ -8,6 +8,7 @@ import { Article, getPublishedArticles } from "@/lib/services/articleService";
 import { ArrowUpRight, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface ArticleGridProps {
     specificArticles?: Article[];
@@ -64,25 +65,30 @@ export function ArticleGrid({ specificArticles }: ArticleGridProps) {
                                 viewport={{ once: true }}
                                 transition={{ delay: idx * 0.1, duration: 0.5 }}
                             >
-                                <div className="aspect-[4/3] bg-neutral-100 rounded-lg overflow-hidden mb-6 relative">
-                                    {doc.meta.cover_image ? (
-                                        <Image
-                                            src={doc.meta.cover_image}
-                                            alt={doc.meta.title}
-                                            fill
-                                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-neutral-200 group-hover:scale-105 transition-transform duration-700 ease-out flex items-center justify-center text-neutral-400 font-display text-2xl">
-                                            {doc.meta.title.charAt(0)}
+                                {doc.meta.cover_image ? (
+                                    // Standard Card with Image
+                                    <>
+                                        <div className="aspect-[4/3] bg-neutral-100 rounded-lg overflow-hidden mb-6 relative">
+                                            <Image
+                                                src={doc.meta.cover_image}
+                                                alt={doc.meta.title}
+                                                fill
+                                                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            />
+                                            <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md text-ink z-10 shadow-sm">
+                                                {doc.meta.tags?.[0] || "Umum"}
+                                            </span>
                                         </div>
-                                    )}
-
-                                    <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md text-ink z-10">
-                                        {doc.meta.tags?.[0] || "Umum"}
-                                    </span>
-                                </div>
+                                    </>
+                                ) : (
+                                    // Text-Only Card (Compact)
+                                    <div className="mb-4">
+                                        <span className="inline-block bg-neutral-100 text-neutral-600 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md mb-4">
+                                            {doc.meta.tags?.[0] || "Umum"}
+                                        </span>
+                                    </div>
+                                )}
 
                                 <div className="flex-1 flex flex-col">
                                     <div className="flex items-center text-xs text-neutral-500 mb-3 space-x-2">
@@ -96,7 +102,10 @@ export function ArticleGrid({ specificArticles }: ArticleGridProps) {
                                                 : "Draft"}
                                         </span>
                                     </div>
-                                    <h3 className="font-display text-2xl font-bold mb-3 leading-snug group-hover:text-primary transition-colors">
+                                    <h3 className={cn(
+                                        "font-display font-bold mb-3 leading-snug group-hover:text-primary transition-colors",
+                                        doc.meta.cover_image ? "text-2xl" : "text-3xl" // Larger title for text-only
+                                    )}>
                                         <Link href={`/read/${doc.meta.slug}`}>
                                             {doc.meta.title}
                                         </Link>
