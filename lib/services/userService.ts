@@ -27,10 +27,12 @@ export async function syncUser(user: FirebaseUser, overrides?: Partial<UserProfi
         // New User -> Default role is 'contributor'
         const newUser: UserProfile = {
             uid: user.uid,
-            // email: user.email, // REMOVED for Privacy. Email is PII and should not be public.
-            display_name: overrides?.display_name || user.displayName || "Warga Baru",
             last_login_at: serverTimestamp(),
             ...overrides,
+            // Ensure required fields are defined and not overwritten by undefined in overrides
+            display_name: overrides?.display_name || user.displayName || "Warga Baru",
+            photo_url: overrides?.photo_url || user.photoURL || "",
+            role: overrides?.role || "contributor",
         };
         await setDoc(userRef, newUser);
         return newUser;
