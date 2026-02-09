@@ -173,27 +173,74 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                     {/* Status Control */}
                     <div className="bg-white p-5 rounded-xl border border-neutral-200">
                         <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Status Publikasi</label>
-                        <select
-                            className={cn(
-                                "w-full p-2 rounded-md border appearance-none font-medium mb-2",
-                                formData.status === 'published'
-                                    ? "bg-green-50 border-green-200 text-green-700"
-                                    : "bg-neutral-50 border-neutral-200 text-neutral-600"
-                            )}
-                            value={formData.status}
-                            onChange={e => setFormData({ ...formData, status: e.target.value as ArticleStatus })}
-                        >
-                            <option value="draft">Draft</option>
-                            <option value="pending_review">Pending Review</option>
-                            {(profile?.role === "admin" || profile?.role === "staff") && (
-                                <option value="published">Published (Live)</option>
-                            )}
-                        </select>
-                        <p className="text-xs text-neutral-400">
-                            {formData.status === 'published'
-                                ? "Artikel ini dapat dibaca oleh publik."
-                                : "Hanya terlihat di dashboard."}
-                        </p>
+
+                        {/* Admin/Staff View: Full Control */}
+                        {(profile?.role === "admin" || profile?.role === "staff") ? (
+                            <>
+                                <select
+                                    className={cn(
+                                        "w-full p-2 rounded-md border appearance-none font-medium mb-2",
+                                        formData.status === 'published'
+                                            ? "bg-green-50 border-green-200 text-green-700"
+                                            : "bg-neutral-50 border-neutral-200 text-neutral-600"
+                                    )}
+                                    value={formData.status}
+                                    onChange={e => setFormData({ ...formData, status: e.target.value as ArticleStatus })}
+                                >
+                                    <option value="draft">Draft</option>
+                                    <option value="pending_review">Pending Review</option>
+                                    <option value="published">Published (Live)</option>
+                                    <option value="rejected">Rejected (Revisi)</option>
+                                </select>
+                                <p className="text-xs text-neutral-400">
+                                    {formData.status === 'published'
+                                        ? "Artikel ini tayang untuk publik."
+                                        : "Status artikel saat ini."}
+                                </p>
+                            </>
+                        ) : (
+                            /* Contributor View: Submit Workflow */
+                            <div className="space-y-3">
+                                <div className={cn(
+                                    "p-3 rounded-lg text-sm font-medium border",
+                                    formData.status === 'published' && "bg-green-50 border-green-200 text-green-700",
+                                    formData.status === 'draft' && "bg-neutral-50 border-neutral-200 text-neutral-600",
+                                    formData.status === 'pending_review' && "bg-orange-50 border-orange-200 text-orange-700",
+                                    formData.status === 'rejected' && "bg-red-50 border-red-200 text-red-700",
+                                )}>
+                                    {formData.status === 'draft' && "Draft (Belum Diajukan)"}
+                                    {formData.status === 'pending_review' && "Sedang Ditinjau Admin"}
+                                    {formData.status === 'published' && "Sudah Terbit (Published)"}
+                                    {formData.status === 'rejected' && "Perlu Revisi (Ditolak)"}
+                                </div>
+
+                                {formData.status === 'draft' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, status: 'pending_review' })}
+                                        className="w-full py-2 px-4 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Ajukan Publikasi
+                                    </button>
+                                )}
+
+                                {formData.status === 'rejected' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, status: 'pending_review' })}
+                                        className="w-full py-2 px-4 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg text-sm font-bold transition-colors"
+                                    >
+                                        Ajukan Ulang
+                                    </button>
+                                )}
+
+                                <p className="text-xs text-neutral-400">
+                                    {formData.status === 'draft'
+                                        ? "Klik tombol di atas untuk mengirim artikel ke meja redaksi."
+                                        : "Hubungi admin jika butuh perubahan mendesak."}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Meta */}

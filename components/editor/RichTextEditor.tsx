@@ -126,7 +126,7 @@ export function RichTextEditor({ value, onChange, className, placeholder }: Rich
                     tooltip="Link"
                 />
                 <CldUploadWidget
-                    uploadPreset="warga_daily_unsigned"
+                    uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "warga_daily_unsigned"}
                     onSuccess={handleImageUpload}
                 >
                     {({ open }) => (
