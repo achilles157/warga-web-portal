@@ -13,14 +13,13 @@ service cloud.firestore {
     // Articles
     match /articles_collection/{articleId} {
       // Allow public read if published
-      // (Authenticated read is covered by the wildcard match below)
-      allow read: if resource.data.editorial.status == 'published';
+      // OR if the user is the author (for editing drafts)
+      allow read: if resource.data.editorial.status == 'published' || (request.auth != null && resource.data.editorial.author_id == request.auth.uid);
       
       // Allow any auth user to create
       allow create: if request.auth != null;
       
       // Allow author to update
-      // (Admin update is covered by the wildcard match below)
       allow update: if request.auth != null && resource.data.editorial.author_id == request.auth.uid;
     }
 
