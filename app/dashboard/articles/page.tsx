@@ -21,8 +21,9 @@ export default function ArticlesPage() {
     useEffect(() => {
         async function fetch() {
             if (!user) return;
+            const isStaffOrAdmin = user.role === 'admin' || user.role === 'staff';
             // @ts-ignore
-            const data = await getArticles(user.uid);
+            const data = await getArticles(isStaffOrAdmin ? undefined : user.uid);
             setArticles(data);
             setLoading(false);
         }
