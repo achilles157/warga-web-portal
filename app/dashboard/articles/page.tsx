@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { Plus, Search, Filter } from "lucide-react";
 import Link from "next/link";
-import { getArticles, Article } from "@/lib/services/articleService";
+import { getArticles, Article, deleteArticle } from "@/lib/services/articleService";
 import { cn } from "@/lib/utils";
 
+import { useAuth } from "@/components/auth/AuthContext";
+
 export default function ArticlesPage() {
+    const { user } = useAuth();
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -17,12 +20,14 @@ export default function ArticlesPage() {
 
     useEffect(() => {
         async function fetch() {
-            const data = await getArticles();
+            if (!user) return;
+            // @ts-ignore
+            const data = await getArticles(user.uid);
             setArticles(data);
             setLoading(false);
         }
         fetch();
-    }, []);
+    }, [user]);
 
     // Filter Logic
     const filteredArticles = articles.filter(article => {
@@ -135,9 +140,27 @@ export default function ArticlesPage() {
                                         {new Date().toLocaleDateString("id-ID")}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <Link href={`/dashboard/articles/${article.id}`} className="text-neutral-600 hover:text-primary font-medium text-xs">
-                                            Edit
-                                        </Link>
+                                        <div className="flex items-center gap-3">
+                                            <Link href={`/dashboard/articles/${article.id}`} className="text-neutral-600 hover:text-primary font-medium text-xs">
+                                                Edit
+                                            </Link>
+                                            <button
+                                                onClick={async () => {
+                                                    if (confirm("Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.")) {
+                                                        try {
+                                                            await deleteArticle(article.id!);
+                                                            setArticles(articles.filter(a => a.id !== article.id));
+                                                        } catch (error) {
+                                                            console.error("Failed to delete", error);
+                                                            alert("Gagal menghapus artikel.");
+                                                        }
+                                                    }
+                                                }}
+                                                className="text-red-400 hover:text-red-600 font-medium text-xs"
+                                            >
+                                                Hapus
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

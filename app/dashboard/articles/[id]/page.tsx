@@ -50,24 +50,31 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
 
     useEffect(() => {
         async function load() {
-            const data = await getArticleById(id);
-            if (data) {
-                setArticleId(data.id!);
-                setFormData({
-                    title: data.meta.title,
-                    subtitle: data.meta.subtitle,
-                    slug: data.meta.slug,
-                    cover_image: data.meta.cover_image,
-                    body: data.content.body,
-                    is_locked: data.content.is_locked,
-                    lock_cta_text: data.content.lock_cta_text || "Buka Dokumen Asli di Aplikasi",
-                    linked_module_id: data.content.linked_module_id || "",
-                    linked_sub_module_id: data.content.linked_sub_module_id || "",
-                    category: data.meta.tags?.[0] || "Investigasi",
-                    status: data.editorial.status
-                });
+            try {
+                const data = await getArticleById(id);
+                if (data) {
+                    setArticleId(data.id!);
+                    setFormData({
+                        title: data.meta.title,
+                        subtitle: data.meta.subtitle,
+                        slug: data.meta.slug,
+                        cover_image: data.meta.cover_image,
+                        body: data.content.body,
+                        is_locked: data.content.is_locked,
+                        lock_cta_text: data.content.lock_cta_text || "Buka Dokumen Asli di Aplikasi",
+                        linked_module_id: data.content.linked_module_id || "",
+                        linked_sub_module_id: data.content.linked_sub_module_id || "",
+                        category: data.meta.tags?.[0] || "Investigasi",
+                        status: data.editorial.status
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to load article:", error);
+                alert("Gagal memuat artikel. Pastikan Anda memiliki izin atau koneksi internet stabil.");
+                router.push("/dashboard/articles");
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         }
         load();
     }, [id]);

@@ -12,6 +12,7 @@ import {
     limit,
     serverTimestamp,
     addDoc,
+    deleteDoc,
 } from "firebase/firestore";
 
 const ARTICLES_COLLECTION = "articles_collection";
@@ -94,11 +95,15 @@ export async function createArticle(
 /**
  * Fetches articles based on status.
  */
-export async function getArticles(status?: ArticleStatus) {
+export async function getArticles(authorId?: string, status?: ArticleStatus) {
     let q = query(
         collection(db, ARTICLES_COLLECTION),
         orderBy("editorial.created_at", "desc")
     );
+
+    if (authorId) {
+        q = query(q, where("editorial.author_id", "==", authorId));
+    }
 
     if (status) {
         q = query(q, where("editorial.status", "==", status));
@@ -177,4 +182,12 @@ export async function getArticlesByTag(tag: string) {
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Article));
+}
+
+/**
+ * Deletes an article by ID.
+ */
+export async function deleteArticle(id: string) {
+    const docRef = doc(db, ARTICLES_COLLECTION, id);
+    await deleteDoc(docRef);
 }

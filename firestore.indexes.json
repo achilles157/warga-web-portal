@@ -81,6 +81,38 @@
                     "order": "DESCENDING"
                 }
             ]
+        },
+        {
+            "collectionGroup": "articles_collection",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "editorial.author_id",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.created_at",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "articles_collection",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "editorial.author_id",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.status",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "editorial.created_at",
+                    "order": "DESCENDING"
+                }
+            ]
         }
     ],
     "fieldOverrides": []

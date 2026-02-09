@@ -18,6 +18,7 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ value, onChange, className, placeholder }: RichTextEditorProps) {
     const editor = useEditor({
+        immediatelyRender: false,
         extensions: [
             StarterKit,
             ImageExtension.configure({
