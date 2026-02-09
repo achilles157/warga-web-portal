@@ -72,7 +72,7 @@ export function RichTextEditor({ value, onChange, className, placeholder }: Rich
     return (
         <div className={cn("border border-neutral-200 rounded-xl overflow-hidden bg-white flex flex-col", className)}>
             {/* Toolbar */}
-            <div className="flex items-center gap-1 p-2 border-b border-neutral-100 bg-neutral-50/50 flex-wrap">
+            <div className="sticky top-0 z-20 flex items-center gap-1 p-2 border-b border-neutral-100 bg-white/95 backdrop-blur-sm flex-wrap">
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     isActive={editor.isActive('bold')}
