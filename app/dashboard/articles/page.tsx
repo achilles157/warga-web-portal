@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthContext";
 
 export default function ArticlesPage() {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -21,14 +21,15 @@ export default function ArticlesPage() {
     useEffect(() => {
         async function fetch() {
             if (!user) return;
-            const isStaffOrAdmin = user.role === 'admin' || user.role === 'staff';
+            // Use profile for role check
+            const isStaffOrAdmin = profile?.role === 'admin' || profile?.role === 'staff';
             // @ts-ignore
             const data = await getArticles(isStaffOrAdmin ? undefined : user.uid);
             setArticles(data);
             setLoading(false);
         }
         fetch();
-    }, [user]);
+    }, [user, profile]);
 
     // Filter Logic
     const filteredArticles = articles.filter(article => {
