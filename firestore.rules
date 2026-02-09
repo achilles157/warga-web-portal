@@ -10,20 +10,31 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Helper function to check if user has admin/staff role
+    function isAdminOrStaff() {
+      return request.auth != null && 
+        (get(/databases/$(database)/documents/users_collection/$(request.auth.uid)).data.role in ['admin', 'staff']);
+    }
+
     // Articles
     match /articles_collection/{articleId} {
       // Allow public read if published
       // OR if the user is the author (for editing drafts)
-      allow read: if resource.data.editorial.status == 'published' || (request.auth != null && resource.data.editorial.author_id == request.auth.uid);
+      // OR if the user is admin/staff
+      allow read: if resource.data.editorial.status == 'published' || 
+                   (request.auth != null && resource.data.editorial.author_id == request.auth.uid) ||
+                   isAdminOrStaff();
       
       // Allow any auth user to create
       allow create: if request.auth != null;
       
       // Allow author to update
-      allow update: if request.auth != null && resource.data.editorial.author_id == request.auth.uid;
+      // OR admin/staff to update (e.g. for publishing/rejection)
+      allow update: if (request.auth != null && resource.data.editorial.author_id == request.auth.uid) || isAdminOrStaff();
       
       // Allow author to delete
-      allow delete: if request.auth != null && resource.data.editorial.author_id == request.auth.uid;
+      // OR admin/staff to delete
+      allow delete: if (request.auth != null && resource.data.editorial.author_id == request.auth.uid) || isAdminOrStaff();
     }
 
     // --- Specific Collection Rules (WargaPlus App) ---
