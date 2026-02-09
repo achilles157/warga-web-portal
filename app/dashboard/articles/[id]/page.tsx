@@ -158,7 +158,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                         />
                     </div>
 
-                    <div className="bg-white p-0 rounded-xl overflow-hidden min-h-[500px]">
+                    <div className="bg-white p-0 rounded-xl min-h-[500px]">
                         <RichTextEditor
                             value={formData.body}
                             onChange={val => setFormData({ ...formData, body: val })}

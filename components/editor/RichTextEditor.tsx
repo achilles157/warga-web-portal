@@ -71,9 +71,9 @@ export function RichTextEditor({ value, onChange, className, placeholder }: Rich
     };
 
     return (
-        <div className={cn("border border-neutral-200 rounded-xl overflow-hidden bg-white flex flex-col", className)}>
+        <div className={cn("border border-neutral-200 rounded-xl bg-white flex flex-col", className)}>
             {/* Toolbar */}
-            <div className="sticky top-0 z-20 flex items-center gap-1 p-2 border-b border-neutral-100 bg-white/95 backdrop-blur-sm flex-wrap">
+            <div className="sticky top-20 z-20 flex items-center gap-1 p-2 border-b border-neutral-100 bg-white/95 backdrop-blur-sm flex-wrap rounded-t-xl">
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     isActive={editor.isActive('bold')}
@@ -163,7 +163,7 @@ export function RichTextEditor({ value, onChange, className, placeholder }: Rich
             </div>
 
             {/* Footer Status */}
-            <div className="px-4 py-2 border-t border-neutral-100 bg-neutral-50 text-xs text-neutral-400 text-right">
+            <div className="px-4 py-2 border-t border-neutral-100 bg-neutral-50 text-xs text-neutral-400 text-right rounded-b-xl">
                 Rich Text Enabled
             </div>
         </div>
