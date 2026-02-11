@@ -42,7 +42,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                     <h1 className="font-display font-bold text-4xl md:text-5xl mb-4 capitalize">
                         {category}
                     </h1>
-                    <p className="text-xl text-neutral-500 font-serif italic max-w-2xl">
+                    <p className="text-xl text-neutral-500 font-sans italic max-w-2xl">
                         {CATEGORY_DESC[category.toLowerCase()] || "Kumpulan artikel pilihan editor."}
                     </p>
                 </header>

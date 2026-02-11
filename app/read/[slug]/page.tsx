@@ -105,7 +105,7 @@ export default async function ReadArticlePage({ params }: { params: Promise<{ sl
                         {article.meta.title}
                     </h1>
                     {article.meta.subtitle && (
-                        <p className="text-xl text-neutral-600 font-serif italic mb-8">
+                        <p className="text-xl text-neutral-600 font-sans italic mb-8">
                             {article.meta.subtitle}
                         </p>
                     )}
@@ -147,7 +147,7 @@ export default async function ReadArticlePage({ params }: { params: Promise<{ sl
 
                 {/* Content */}
                 <div className={cn(
-                    "prose prose-lg prose-neutral max-w-none font-serif text-ink leading-relaxed relative",
+                    "prose prose-lg prose-neutral max-w-none font-sans text-ink leading-relaxed relative",
                     article.content.is_locked && "pb-32" // Extra padding for the overlay
                 )}>
                     {/* Hybrid Rendering: Check if content looks like HTML (starts with <) */}
