@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowLeft, MapPin, Calendar, Globe } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 export const revalidate = 300; // ISR every 5 minutes
 
@@ -108,46 +109,71 @@ export default async function AuthorPage({ params }: { params: Promise<{ id: str
                             <p className="text-neutral-400">Belum ada artikel yang diterbitkan.</p>
                         </div>
                     ) : (
-                        articles.map(article => (
-                            <Link key={article.id} href={`/read/${article.meta.slug}`} className="group block bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-md transition-all hover:border-primary/50">
-                                <div className="flex flex-col md:flex-row h-full md:h-48">
-                                    {/* Image */}
-                                    <div className="md:w-1/3 bg-neutral-100 relative overflow-hidden min-h-[12rem] md:min-h-0">
-                                        {article.meta.cover_image ? (
-                                            <Image
-                                                src={article.meta.cover_image}
-                                                alt={article.meta.title}
-                                                fill
-                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                                sizes="(max-width: 768px) 100vw, 33vw"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-neutral-300">No Image</div>
-                                        )}
-                                    </div>
+                        articles.map(article => {
+                            const hasImage = !!article.meta.cover_image;
 
-                                    {/* Content */}
-                                    <div className="flex-1 p-6 flex flex-col justify-between">
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-xs font-bold text-primary uppercase tracking-wider">{article.meta.tags?.[0] || "Artikel"}</span>
-                                                <span className="text-neutral-300">•</span>
-                                                <span className="text-xs text-neutral-500">
-                                                    {article.editorial.published_at && format(article.editorial.published_at.toDate(), "d MMM yyyy", { locale: idLocale })}
-                                                </span>
+                            return (
+                                <Link
+                                    key={article.id}
+                                    href={`/read/${article.meta.slug}`}
+                                    className={cn(
+                                        "group block bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-md transition-all hover:border-primary/50",
+                                        !hasImage && "bg-neutral-50/50"
+                                    )}
+                                >
+                                    <div className="flex flex-col md:flex-row h-full md:min-h-[12rem]">
+                                        {/* Image Column - Only render if image exists */}
+                                        {hasImage && (
+                                            <div className="md:w-1/3 bg-neutral-100 relative overflow-hidden min-h-[12rem] md:min-h-0">
+                                                <Image
+                                                    src={article.meta.cover_image}
+                                                    alt={article.meta.title}
+                                                    fill
+                                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                                />
                                             </div>
-                                            <h3 className="font-display font-bold text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                                                {article.meta.title}
-                                            </h3>
-                                            <p className="text-neutral-500 text-sm line-clamp-2 mb-4">
-                                                {article.meta.subtitle}
-                                            </p>
+                                        )}
+
+                                        {/* Content Column */}
+                                        <div className={cn(
+                                            "flex-1 p-6 flex flex-col justify-between",
+                                            !hasImage && "md:p-8"
+                                        )}>
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className="text-xs font-bold text-primary uppercase tracking-wider">{article.meta.tags?.[0] || "Artikel"}</span>
+                                                    <span className="text-neutral-300">•</span>
+                                                    <span className="text-xs text-neutral-500">
+                                                        {article.editorial.published_at
+                                                            ? format(article.editorial.published_at.toDate(), "d MMM yyyy", { locale: idLocale })
+                                                            : "Draft"}
+                                                    </span>
+                                                </div>
+
+                                                <h3 className={cn(
+                                                    "font-display font-bold mb-3 group-hover:text-primary transition-colors line-clamp-2",
+                                                    hasImage ? "text-xl" : "text-2xl"
+                                                )}>
+                                                    {article.meta.title}
+                                                </h3>
+
+                                                <p className={cn(
+                                                    "text-neutral-500 text-sm mb-4",
+                                                    hasImage ? "line-clamp-2" : "line-clamp-3 text-base"
+                                                )}>
+                                                    {article.meta.subtitle || article.content.body.substring(0, 150).replace(/[#*`]/g, "") + "..."}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 text-xs font-bold text-ink group-hover:underline mt-auto">
+                                                BACA SELENGKAPNYA
+                                            </div>
                                         </div>
-                                        <div className="text-xs font-bold text-ink group-hover:underline">BACA SELENGKAPNYA</div>
                                     </div>
-                                </div>
-                            </Link>
-                        ))
+                                </Link>
+                            );
+                        })
                     )}
                 </div>
             </div>

@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Poppins, Plus_Jakarta_Sans } from "next/font/google"; // Use new fonts
 import "./globals.css";
 import { clsx } from "clsx";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"], // Gen Z loves bold/heavy weights
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -45,9 +47,9 @@ export default function RootLayout({
     <html lang="id">
       <body
         className={clsx(
-          playfair.variable,
-          inter.variable,
-          "antialiased bg-paper text-ink min-h-screen flex flex-col"
+          poppins.variable, // Headers
+          jakarta.variable, // Body
+          "antialiased bg-paper text-ink min-h-screen flex flex-col font-sans" // Default to sans (Jakarta)
         )}
       >
         <AuthProvider>

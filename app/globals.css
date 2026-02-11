@@ -19,8 +19,10 @@
   --color-error: #EF4444;
   /* Pink */
 
-  --font-display: var(--font-playfair);
-  --font-sans: var(--font-inter);
+  /* Poppins for Headings */
+  --font-display: var(--font-poppins);
+  /* Plus Jakarta Sans for Body */
+  --font-sans: var(--font-jakarta);
 }
 
 :root {
