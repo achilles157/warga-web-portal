@@ -47,6 +47,10 @@ export interface Article {
         reviewer_id?: string | null;
         rejection_reason?: string | null;
     };
+    bibliography?: {
+        title: string;
+        url: string;
+    }[];
     metrics?: {
         views: number;
         app_clicks: number;
@@ -82,6 +86,7 @@ export async function createArticle(
             updated_at: serverTimestamp(),
             published_at: null,
         },
+        bibliography: [],
         metrics: {
             views: 0,
             app_clicks: 0,

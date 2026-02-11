@@ -11,6 +11,7 @@ import { ChevronLeft, Save, Loader2, Lock } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { BibliographyEditor, BibliographyItem } from "@/components/editor/BibliographyEditor";
 
 export default function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
     const { profile } = useAuth();
@@ -31,6 +32,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         linked_sub_module_id: string;
         category: string;
         status: ArticleStatus;
+        bibliography: BibliographyItem[];
     }>({
         title: "",
         subtitle: "",
@@ -42,7 +44,8 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         linked_module_id: "ekologi_bencana_sumatera",
         linked_sub_module_id: "",
         category: "Investigasi",
-        status: "draft"
+        status: "draft",
+        bibliography: []
     });
 
     // Unwrap params
@@ -65,7 +68,8 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                         linked_module_id: data.content.linked_module_id || "",
                         linked_sub_module_id: data.content.linked_sub_module_id || "",
                         category: data.meta.tags?.[0] || "Investigasi",
-                        status: data.editorial.status
+                        status: data.editorial.status,
+                        bibliography: data.bibliography || []
                     });
                 }
             } catch (error) {
@@ -97,7 +101,8 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                 "content.linked_module_id": formData.linked_module_id,
                 "content.linked_sub_module_id": formData.linked_sub_module_id,
                 "editorial.status": formData.status,
-                "editorial.updated_at": serverTimestamp()
+                "editorial.updated_at": serverTimestamp(),
+                "bibliography": formData.bibliography
             };
 
             if (formData.status === 'published') {
@@ -322,6 +327,14 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    {/* Bibliography Editor */}
+                    <div className="bg-white p-5 rounded-xl border border-neutral-200">
+                        <BibliographyEditor
+                            value={formData.bibliography}
+                            onChange={items => setFormData({ ...formData, bibliography: items })}
+                        />
                     </div>
                 </div>
             </div>

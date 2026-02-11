@@ -4,6 +4,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { notFound } from "next/navigation";
 
+export const revalidate = 3600; // ISR: Revalidate every hour
+
 // Map URL slug to Database Tag (Case Sensitive)
 const CATEGORY_MAP: Record<string, string> = {
     "investigasi": "Investigasi",
@@ -46,10 +48,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                 </header>
 
                 {articles.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {articles.map(article => (
-                            <ArticleGrid key={article.id} specificArticles={[article]} />
-                        ))}
+                    <div className="-mt-20"> {/* Negative margin to offset ArticleGrid's top padding if needed, or just let it be. ArticleGrid has py-20. */}
+                        <ArticleGrid specificArticles={articles} hideHeader={true} />
                     </div>
                 ) : (
                     <div className="py-20 text-center bg-neutral-50 rounded-xl border border-neutral-100">
@@ -58,12 +58,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                         </p>
                     </div>
                 )}
-
-                {/* Note: Reuse ArticleGrid logic but we might need to refactor ArticleGrid to accept props 
-                    Currently ArticleGrid fetches its own data. 
-                    Let's check ArticleGrid first. If it fetches its own data, I should probably create a simpler ArticleCard 
-                    or refactor ArticleGrid to accept `articles` prop.
-                */}
             </div>
 
             <Footer />

@@ -19,19 +19,35 @@ export default function DashboardLayout({
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    const [isAuthorized, setIsAuthorized] = useState(false);
+
     useEffect(() => {
-        if (!loading && !user) {
-            router.push("/login");
+        // Guard Logic: 
+        // 1. Wait for Auth Loading to finish
+        // 2. Check if user exists
+        // 3. User must have a profile (synced)
+        if (!loading) {
+            if (!user || !profile) {
+                router.push("/login"); // Redirect unauthorized
+            } else {
+                setIsAuthorized(true); // Allow access
+            }
         }
-    }, [user, loading, router]);
+    }, [user, profile, loading, router]);
 
     // Close mobile menu when route changes
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [pathname]);
 
-    if (loading || !profile) {
-        return <div className="min-h-screen flex items-center justify-center text-neutral-400">Loading Dashboard...</div>;
+    // BLOCK RENDER until authorized
+    if (loading || !isAuthorized || !profile) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-neutral-500 font-medium animate-pulse">Memuat Dashboard...</p>
+            </div>
+        );
     }
 
     return (

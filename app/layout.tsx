@@ -31,6 +31,7 @@ export const metadata: Metadata = {
     icon: "/images/new_logo.png",
     apple: "/images/new_logo.png",
   },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://wargadaily.com"),
 };
 
 import { AuthProvider } from "@/components/auth/AuthContext";

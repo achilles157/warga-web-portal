@@ -8,13 +8,14 @@ import { Article, getPublishedArticles } from "@/lib/services/articleService";
 import { ArrowUpRight, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn, parseFirestoreTimestamp } from "@/lib/utils";
 
 interface ArticleGridProps {
     specificArticles?: Article[];
+    hideHeader?: boolean;
 }
 
-export function ArticleGrid({ specificArticles }: ArticleGridProps) {
+export function ArticleGrid({ specificArticles, hideHeader = false }: ArticleGridProps) {
     const [articles, setArticles] = useState<Article[]>(specificArticles || []);
     const [loading, setLoading] = useState(!specificArticles);
 
@@ -43,12 +44,14 @@ export function ArticleGrid({ specificArticles }: ArticleGridProps) {
     return (
         <section className="py-20 bg-white">
             <div className="container mx-auto px-6">
-                <div className="flex items-end justify-between mb-12">
-                    <h2 className="font-display text-4xl font-bold text-ink">Terbaru</h2>
-                    <Link href="/archives" className="text-sm font-medium border-b border-ink pb-0.5 hover:text-neutral-600 hover:border-neutral-600 transition-colors">
-                        Lihat Arsip
-                    </Link>
-                </div>
+                {!hideHeader && (
+                    <div className="flex items-end justify-between mb-12">
+                        <h2 className="font-display text-4xl font-bold text-ink">Terbaru</h2>
+                        <Link href="/archives" className="text-sm font-medium border-b border-ink pb-0.5 hover:text-neutral-600 hover:border-neutral-600 transition-colors">
+                            Lihat Arsip
+                        </Link>
+                    </div>
+                )}
 
                 {articles.length === 0 ? (
                     <div className="text-center py-12 bg-neutral-50 rounded-xl">
@@ -97,9 +100,12 @@ export function ArticleGrid({ specificArticles }: ArticleGridProps) {
                                         </Link>
                                         <span>•</span>
                                         <span>
-                                            {doc.editorial.published_at
-                                                ? format(doc.editorial.published_at.toDate(), "d MMM yyyy", { locale: idLocale })
-                                                : "Draft"}
+                                            {(() => {
+                                                const date = parseFirestoreTimestamp(doc.editorial.published_at);
+                                                return date
+                                                    ? format(date, "d MMM yyyy", { locale: idLocale })
+                                                    : "Draft";
+                                            })()}
                                         </span>
                                     </div>
                                     <h3 className={cn(

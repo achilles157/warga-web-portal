@@ -7,6 +7,7 @@ import { ArrowLeft, Clock, Calendar, User } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { AppLockCard } from "@/components/article/AppLockCard";
+import { BibliographySection } from "@/components/article/BibliographySection";
 import { cn } from "@/lib/utils";
 
 import { Metadata } from "next";
@@ -19,20 +20,46 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     if (!article) return { title: "Artikel Tidak Ditemukan" };
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://wargadaily.com";
+    const articleUrl = `${baseUrl}/read/${slug}`;
+    const cleanDescription = article.meta.subtitle || article.content.body.substring(0, 150).replace(/[#*`]/g, "") + "...";
+
     return {
         title: article.meta.title,
-        description: article.meta.subtitle || "Baca selengkapnya di Warga Daily.",
+        description: cleanDescription,
+        keywords: article.meta.tags || ["Berita", "Warga Daily", "Jurnalisme Warga"],
+        authors: [{ name: article.editorial.author_name, url: `${baseUrl}/author/${article.editorial.author_id}` }],
+        publisher: "Warga Daily",
+        alternates: {
+            canonical: articleUrl,
+        },
         openGraph: {
-            images: article.meta.cover_image ? [article.meta.cover_image] : [],
+            title: article.meta.title,
+            description: cleanDescription,
+            url: articleUrl,
+            siteName: "Warga Daily",
+            locale: "id_ID",
             type: "article",
             publishedTime: article.editorial.published_at?.toDate().toISOString(),
-            authors: [article.editorial.author_name]
+            authors: [article.editorial.author_name],
+            tags: article.meta.tags,
+            images: article.meta.cover_image ? [
+                {
+                    url: article.meta.cover_image,
+                    width: 1200,
+                    height: 630,
+                    alt: article.meta.title,
+                }
+            ] : [],
         },
         twitter: {
             card: "summary_large_image",
             title: article.meta.title,
-            description: article.meta.subtitle || ""
-        }
+            description: cleanDescription,
+            images: article.meta.cover_image ? [article.meta.cover_image] : [],
+            creator: "@wargadaily", // Optional: Update if they have a handle
+            site: "@wargadaily",
+        },
     };
 }
 
@@ -154,6 +181,9 @@ export default async function ReadArticlePage({ params }: { params: Promise<{ sl
                         <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-paper to-transparent pointer-events-none" />
                     )}
                 </div>
+
+                {/* Bibliography Section */}
+                <BibliographySection items={article.bibliography || []} />
 
                 {/* Locked Content Overlay */}
                 {article.content.is_locked && (
