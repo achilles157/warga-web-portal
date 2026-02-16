@@ -78,69 +78,74 @@ export function BibliographyEditor({ value, onChange }: BibliographyEditorProps)
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
-                {/* Type Select */}
-                <div className="col-span-12 md:col-span-2">
-                    <select
-                        className="w-full h-10 text-sm px-2 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary"
-                        value={newItem.type}
-                        onChange={e => setNewItem({ ...newItem, type: e.target.value as BibliographyItem["type"] })}
-                    >
-                        {TYPE_OPTIONS.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                    </select>
+            <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <div className="grid grid-cols-12 gap-4 mb-4">
+                    {/* Type Select */}
+                    <div className="col-span-12 md:col-span-3">
+                        <label className="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">Tipe Data</label>
+                        <select
+                            className="w-full h-10 text-sm px-2 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary"
+                            value={newItem.type}
+                            onChange={e => setNewItem({ ...newItem, type: e.target.value as BibliographyItem["type"] })}
+                        >
+                            {TYPE_OPTIONS.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Source Input */}
+                    <div className="col-span-12 md:col-span-4">
+                        <label className="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">Sumber / Institusi</label>
+                        <input
+                            type="text"
+                            placeholder="Contoh: LAPAN, BMKG, UU Ciptaker"
+                            className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
+                            value={newItem.source}
+                            onChange={e => setNewItem({ ...newItem, source: e.target.value })}
+                        />
+                    </div>
+
+                    {/* URL Input */}
+                    <div className="col-span-12 md:col-span-5">
+                        <label className="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">Link Tautan</label>
+                        <input
+                            type="url"
+                            placeholder="https://"
+                            className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
+                            value={newItem.url}
+                            onChange={e => setNewItem({ ...newItem, url: e.target.value })}
+                        />
+                    </div>
+
+                    {/* Title Input */}
+                    <div className="col-span-12">
+                        <label className="block text-xs font-bold text-neutral-500 mb-1.5 uppercase">Judul Dokumen / Artikel</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                placeholder="Judul lengkap referensi"
+                                className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
+                                value={newItem.title}
+                                onChange={e => setNewItem({ ...newItem, title: e.target.value })}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAdd}
+                                disabled={!newItem.title || !newItem.url || !newItem.source}
+                                className="h-10 w-auto px-6 flex items-center justify-center bg-ink text-white rounded-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0 font-medium text-sm"
+                            >
+                                <Plus size={16} className="mr-2" />
+                                Tambah
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Title Input */}
-                <div className="col-span-12 md:col-span-4">
-                    <input
-                        type="text"
-                        placeholder="Judul Referensi"
-                        className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
-                        value={newItem.title}
-                        onChange={e => setNewItem({ ...newItem, title: e.target.value })}
-                    />
-                </div>
-
-                {/* Source Input */}
-                <div className="col-span-12 md:col-span-3">
-                    <input
-                        type="text"
-                        placeholder="Sumber (e.g. LAPAN)"
-                        className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
-                        value={newItem.source}
-                        onChange={e => setNewItem({ ...newItem, source: e.target.value })}
-                    />
-                </div>
-
-                {/* URL Input */}
-                <div className="col-span-12 md:col-span-2">
-                    <input
-                        type="url"
-                        placeholder="URL"
-                        className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
-                        value={newItem.url}
-                        onChange={e => setNewItem({ ...newItem, url: e.target.value })}
-                    />
-                </div>
-
-                {/* Add Button */}
-                <div className="col-span-12 md:col-span-1">
-                    <button
-                        type="button"
-                        onClick={handleAdd}
-                        disabled={!newItem.title || !newItem.url || !newItem.source}
-                        className="w-full h-10 flex items-center justify-center bg-ink text-white rounded-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        <Plus size={18} />
-                    </button>
-                </div>
+                <p className="text-xs text-neutral-400">
+                    *Pastikan semua field terisi untuk menambahkan referensi verifikasi.
+                </p>
             </div>
-
-            <p className="text-xs text-neutral-400">
-                Tambahkan data, dokumen hukum, atau laporan yang memverifikasi klaim artikel ini.
-            </p>
         </div>
     );
 }
