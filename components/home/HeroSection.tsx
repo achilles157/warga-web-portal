@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-export function HeroSection() {
+export function HeroSection({ article }: { article?: any }) {
+    if (!article) return null;
+
     return (
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
             <div className="container mx-auto px-6">
@@ -25,7 +27,7 @@ export function HeroSection() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
                     >
-                        Mengapa Banjir Sumatera Terus <span className="text-accent italic">Berulang?</span>
+                        {article.meta.title}
                     </motion.h1>
 
                     <motion.p
@@ -34,7 +36,7 @@ export function HeroSection() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     >
-                        Sebuah investigasi mendalam tentang tata kelola lahan, perubahan iklim, dan suara warga yang terabaikan di balik bencana tahunan.
+                        {article.meta.subtitle}
                     </motion.p>
 
                     <motion.div
@@ -44,10 +46,10 @@ export function HeroSection() {
                         className="flex justify-center"
                     >
                         <Link
-                            href="/login"
+                            href={`/read/${article.meta.slug}`}
                             className="group flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-full font-medium transition-all hover:bg-ink hover:scale-105 shadow-lg shadow-primary/25"
                         >
-                            Mulai Menulis
+                            Baca Selengkapnya
                             <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                         </Link>
                     </motion.div>

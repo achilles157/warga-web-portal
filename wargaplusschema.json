@@ -57,7 +57,17 @@
       "metrics": {
         "views": 1540,
         "app_clicks": 320 // Berapa orang yang klik tombol 'Buka di App'
-      }
+      },
+      "bibliography": [
+        {
+          "title": "Jurnal Lingkungan Hidup Vol. 3",
+          "url": "https://example.com/jurnal.pdf"
+        },
+        {
+          "title": "Laporan Tahunan WALHI 2024",
+          "url": "https://walhi.or.id/laporan2024"
+        }
+      ]
     },
     "article_id_draft_789": {
       "meta": {

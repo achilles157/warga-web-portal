@@ -3,9 +3,65 @@
 import { useAuth } from "@/components/auth/AuthContext";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getArticles, Article } from "@/lib/services/articleService";
 
 export default function DashboardOverview() {
     const { profile } = useAuth();
+    const [stats, setStats] = useState({
+        totalViews: 0,
+        pendingCount: 0,
+        contributionCount: 0
+    });
+    const [recentArticles, setRecentArticles] = useState<Article[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadStats() {
+            if (!profile?.uid) return;
+
+            try {
+                // Fetch all articles by this author to calculate stats
+                // If user is admin, maybe they want to see ALL stats? 
+                // For now, let's stick to "My Stats" or "Team Stats" based on role?
+                // The request implies "My Dashboard", so we fetch by authorId.
+                // However, for "Artikel Pending", an Editor might want to see ALL pending articles.
+                // Let's assume this is a personal dashboard for now.
+
+                let articles: Article[] = [];
+
+                if (profile.role === 'admin' || profile.role === 'staff') {
+                    // Admin/Staff sees all articles to monitor system health
+                    // or maybe just their own? The prompt says "Selamat Datang, [Name]", implying personal.
+                    // But "Artikel Pending" for an admin usually means "Todo list".
+                    // Let's fetch ALL articles for Admin/Staff to provide a high-level overview.
+                    articles = await getArticles();
+                } else {
+                    // Contributors only see their own
+                    articles = await getArticles(profile.uid);
+                }
+
+                const totalViews = articles.reduce((acc, curr) => acc + (curr.metrics?.views || 0), 0);
+                const pendingCount = articles.filter(a => a.editorial.status === 'pending_review').length;
+                const contributionCount = articles.filter(a => a.editorial.author_id === profile.uid).length;
+
+                setStats({
+                    totalViews,
+                    pendingCount,
+                    contributionCount
+                });
+
+                // Get top 5 recent articles for activity stream
+                setRecentArticles(articles.slice(0, 5));
+            } catch (error) {
+                console.error("Failed to load dashboard stats:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadStats();
+    }, [profile]);
 
     return (
         <div>
@@ -24,16 +80,59 @@ export default function DashboardOverview() {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <StatCard label="Total Views (Mingguan)" value="24.5k" trend="+12%" />
-                <StatCard label="Artikel Pending" value="3" trend="Perlu Review" alert />
-                <StatCard label="Total Kontribusi" value="12" />
+                <StatCard
+                    label="Total Views"
+                    value={loading ? "..." : stats.totalViews.toLocaleString()}
+                    trend="All Time"
+                />
+                <StatCard
+                    label="Artikel Pending"
+                    value={loading ? "..." : stats.pendingCount.toString()}
+                    trend={stats.pendingCount > 0 ? "Perlu Review" : "Aman"}
+                    alert={stats.pendingCount > 0}
+                />
+                <StatCard
+                    label="Total Kontribusi"
+                    value={loading ? "..." : stats.contributionCount.toString()}
+                />
             </div>
 
             <div className="bg-white border border-neutral-200 rounded-xl p-6">
                 <h2 className="font-bold text-lg mb-4">Aktivitas Terkini</h2>
-                <div className="text-center py-12 text-neutral-400 text-sm">
-                    Belum ada aktivitas baru.
-                </div>
+                {loading ? (
+                    <div className="text-center py-12 text-neutral-400 text-sm">Memuat data...</div>
+                ) : recentArticles.length > 0 ? (
+                    <div className="space-y-4">
+                        {recentArticles.map(article => (
+                            <div key={article.id} className="flex items-center justify-between border-b border-neutral-100 last:border-0 pb-4 last:pb-0">
+                                <div>
+                                    <h4 className="font-medium text-ink text-sm truncate max-w-md">{article.meta.title}</h4>
+                                    <p className="text-xs text-neutral-400">
+                                        {new Date(article.editorial.updated_at?.seconds * 1000).toLocaleDateString('id-ID', {
+                                            day: 'numeric', month: 'long', year: 'numeric'
+                                        })}
+                                        <span className="mx-1">•</span>
+                                        <span className={cn(
+                                            "capitalize",
+                                            article.editorial.status === 'published' ? "text-green-600" :
+                                                article.editorial.status === 'rejected' ? "text-red-600" : "text-orange-600"
+                                        )}>{article.editorial.status.replace('_', ' ')}</span>
+                                    </p>
+                                </div>
+                                <Link
+                                    href={`/dashboard/articles/${article.id}`}
+                                    className="text-xs font-medium text-primary hover:underline"
+                                >
+                                    Lihat
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12 text-neutral-400 text-sm">
+                        Belum ada aktivitas baru.
+                    </div>
+                )}
             </div>
         </div>
     );

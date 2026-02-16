@@ -1,26 +1,33 @@
-"use client";
-
 import { useState } from "react";
-import { Plus, X, ExternalLink, Trash2 } from "lucide-react";
+import { Plus, X, ExternalLink, Trash2, FileText, Scale, Database, Newspaper } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export interface BibliographyItem {
-    title: string;
-    url: string;
-}
+import { BibliographyItem } from "@/lib/services/articleService";
 
 interface BibliographyEditorProps {
     value: BibliographyItem[];
     onChange: (items: BibliographyItem[]) => void;
 }
 
+const TYPE_OPTIONS = [
+    { value: "data", label: "Data", icon: Database },
+    { value: "legal", label: "Hukum", icon: Scale },
+    { value: "report", label: "Laporan", icon: FileText },
+    { value: "news", label: "Berita", icon: Newspaper },
+    { value: "other", label: "Lainnya", icon: ExternalLink },
+] as const;
+
 export function BibliographyEditor({ value, onChange }: BibliographyEditorProps) {
-    const [newItem, setNewItem] = useState<BibliographyItem>({ title: "", url: "" });
+    const [newItem, setNewItem] = useState<BibliographyItem>({
+        title: "",
+        url: "",
+        source: "",
+        type: "other"
+    });
 
     const handleAdd = () => {
-        if (!newItem.title.trim() || !newItem.url.trim()) return;
+        if (!newItem.title.trim() || !newItem.url.trim() || !newItem.source.trim()) return;
         onChange([...value, newItem]);
-        setNewItem({ title: "", url: "" });
+        setNewItem({ title: "", url: "", source: "", type: "other" });
     };
 
     const handleRemove = (index: number) => {
@@ -39,16 +46,31 @@ export function BibliographyEditor({ value, onChange }: BibliographyEditorProps)
             <div className="space-y-3">
                 {value.map((item, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-100 group">
-                        <div className="overflow-hidden">
-                            <p className="font-medium text-sm text-ink truncate">{item.title}</p>
-                            <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-neutral-400 hover:text-primary truncate block">
-                                {item.url}
-                            </a>
+                        <div className="overflow-hidden flex-1 grid grid-cols-12 gap-2 items-center">
+                            <div className="col-span-1">
+                                <span className={cn(
+                                    "text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border",
+                                    item.type === 'data' ? "bg-blue-50 text-blue-600 border-blue-200" :
+                                        item.type === 'legal' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                                            item.type === 'report' ? "bg-purple-50 text-purple-600 border-purple-200" :
+                                                "bg-neutral-100 text-neutral-600 border-neutral-200"
+                                )}>
+                                    {item.type}
+                                </span>
+                            </div>
+                            <div className="col-span-11 pl-2">
+                                <p className="font-medium text-sm text-ink truncate">
+                                    {item.title} <span className="text-neutral-400 font-normal">• {item.source}</span>
+                                </p>
+                                <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-neutral-400 hover:text-primary truncate block">
+                                    {item.url}
+                                </a>
+                            </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => handleRemove(index)}
-                            className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                            className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100 ml-2"
                         >
                             <Trash2 size={14} />
                         </button>
@@ -56,8 +78,22 @@ export function BibliographyEditor({ value, onChange }: BibliographyEditorProps)
                 ))}
             </div>
 
-            <div className="flex gap-2 items-end flex-wrap">
-                <div className="flex-[2] min-w-[200px] flex flex-col gap-1">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
+                {/* Type Select */}
+                <div className="col-span-12 md:col-span-2">
+                    <select
+                        className="w-full h-10 text-sm px-2 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary"
+                        value={newItem.type}
+                        onChange={e => setNewItem({ ...newItem, type: e.target.value as BibliographyItem["type"] })}
+                    >
+                        {TYPE_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Title Input */}
+                <div className="col-span-12 md:col-span-4">
                     <input
                         type="text"
                         placeholder="Judul Referensi"
@@ -66,27 +102,44 @@ export function BibliographyEditor({ value, onChange }: BibliographyEditorProps)
                         onChange={e => setNewItem({ ...newItem, title: e.target.value })}
                     />
                 </div>
-                <div className="flex-[1] min-w-[150px] flex flex-col gap-1">
+
+                {/* Source Input */}
+                <div className="col-span-12 md:col-span-3">
+                    <input
+                        type="text"
+                        placeholder="Sumber (e.g. LAPAN)"
+                        className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
+                        value={newItem.source}
+                        onChange={e => setNewItem({ ...newItem, source: e.target.value })}
+                    />
+                </div>
+
+                {/* URL Input */}
+                <div className="col-span-12 md:col-span-2">
                     <input
                         type="url"
-                        placeholder="URL (https://...)"
+                        placeholder="URL"
                         className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
                         value={newItem.url}
                         onChange={e => setNewItem({ ...newItem, url: e.target.value })}
                     />
                 </div>
-                <button
-                    type="button"
-                    onClick={handleAdd}
-                    disabled={!newItem.title || !newItem.url}
-                    className="h-10 w-10 flex items-center justify-center bg-ink text-white rounded-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-                >
-                    <Plus size={18} />
-                </button>
+
+                {/* Add Button */}
+                <div className="col-span-12 md:col-span-1">
+                    <button
+                        type="button"
+                        onClick={handleAdd}
+                        disabled={!newItem.title || !newItem.url || !newItem.source}
+                        className="w-full h-10 flex items-center justify-center bg-ink text-white rounded-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        <Plus size={18} />
+                    </button>
+                </div>
             </div>
 
             <p className="text-xs text-neutral-400">
-                Tambahkan link ke jurnal, berita, atau dokumen resmi untuk memperkuat kredibilitas artikel.
+                Tambahkan data, dokumen hukum, atau laporan yang memverifikasi klaim artikel ini.
             </p>
         </div>
     );

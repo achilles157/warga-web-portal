@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
-import { getArticleById, updateArticle, Article, ArticleStatus } from "@/lib/services/articleService";
+import { getArticleById, updateArticle, Article, ArticleStatus, BibliographyItem } from "@/lib/services/articleService";
 import { serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ import { ChevronLeft, Save, Loader2, Lock } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
-import { BibliographyEditor, BibliographyItem } from "@/components/editor/BibliographyEditor";
+import { BibliographyEditor } from "@/components/editor/BibliographyEditor";
 
 export default function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
     const { profile } = useAuth();
@@ -239,7 +239,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                                         onClick={() => setFormData({ ...formData, status: 'pending_review' })}
                                         className="w-full py-2 px-4 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-sm font-bold transition-colors"
                                     >
-                                        Ajukan Publikasi
+                                        Ajukan Review
                                     </button>
                                 )}
 

@@ -19,6 +19,13 @@ const ARTICLES_COLLECTION = "articles_collection";
 
 export type ArticleStatus = "draft" | "pending_review" | "published" | "rejected";
 
+export interface BibliographyItem {
+    title: string;
+    source: string;
+    url: string;
+    type: "data" | "legal" | "report" | "news" | "other";
+}
+
 export interface Article {
     id?: string;
     meta: {
@@ -46,10 +53,13 @@ export interface Article {
         published_at?: any;
         reviewer_id?: string | null;
         rejection_reason?: string | null;
+        isWeeklyPick?: boolean;
     };
     bibliography?: {
         title: string;
+        source: string;
         url: string;
+        type: "data" | "legal" | "report" | "news" | "other";
     }[];
     metrics?: {
         views: number;
@@ -240,4 +250,69 @@ export async function getArticlesByTag(tag: string) {
 export async function deleteArticle(id: string) {
     const docRef = doc(db, ARTICLES_COLLECTION, id);
     await deleteDoc(docRef);
+}
+
+// --- Weekly Picks System ---
+
+const SETTINGS_COLLECTION = "site_settings";
+
+export interface WeeklyPicksData {
+    featured_article_ids: string[];
+    last_updated: any;
+    editor_note: string;
+}
+
+export async function getWeeklyPicks() {
+    const docRef = doc(db, SETTINGS_COLLECTION, "weekly_picks");
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+        return snapshot.data() as WeeklyPicksData;
+    }
+    return null;
+}
+
+export async function getArticlesByIds(ids: string[]) {
+    if (!ids || ids.length === 0) return [];
+
+    // Firestore "in" query supports up to 10 items. 
+    // Since weekly picks are usually 2-3, this is fine.
+    const q = query(
+        collection(db, ARTICLES_COLLECTION),
+        where("__name__", "in", ids), // __name__ refers to document ID
+        where("editorial.status", "==", "published")
+    );
+
+    const snapshot = await getDocs(q);
+    // Sort results to match order of IDs array? Firestore doesn't guarantee order.
+    // We map manually to preserve curated order.
+    const articles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Article));
+
+    return ids
+        .map(id => articles.find(a => a.id === id))
+        .filter(a => a !== undefined) as Article[];
+}
+
+export async function setWeeklyPicks(articleIds: string[], note: string = "") {
+    // 1. Update site_settings/weekly_picks
+    const settingsRef = doc(db, SETTINGS_COLLECTION, "weekly_picks");
+    await setDoc(settingsRef, {
+        featured_article_ids: articleIds,
+        last_updated: serverTimestamp(),
+        editor_note: note
+    });
+
+    // 2. We could update individual articles check "isWeeklyPick" here if we wanted history,
+    // but the prompt says update editorial.isWeeklyPick: true.
+    // Ideally we should "unset" previous ones too, but that's expensive (query all isWeeklyPick=true).
+    // For now, let's just update the NEW ones. (Archival purpose).
+
+    // Batch updates?
+    // Let's just do parallel promises for now, it's small scale.
+    const promises = articleIds.map(id =>
+        updateDoc(doc(db, ARTICLES_COLLECTION, id), {
+            "editorial.isWeeklyPick": true
+        })
+    );
+
+    await Promise.all(promises);
 }

@@ -8,10 +8,17 @@ import { cn } from "@/lib/utils";
 
 import { useAuth } from "@/components/auth/AuthContext";
 
+import { setWeeklyPicks } from "@/lib/services/articleService";
+import { Star } from "lucide-react";
+
 export default function ArticlesPage() {
     const { user, profile } = useAuth();
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Weekly Picks Logic
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [isSettingPicks, setIsSettingPicks] = useState(false);
 
     // Filters
     const [searchQuery, setSearchQuery] = useState("");
@@ -31,6 +38,37 @@ export default function ArticlesPage() {
         fetch();
     }, [user, profile]);
 
+    const handleSelect = (id: string) => {
+        if (selectedIds.includes(id)) {
+            setSelectedIds(selectedIds.filter(i => i !== id));
+        } else {
+            if (selectedIds.length >= 3) {
+                alert("Maksimal 3 artikel untuk Weekly Picks.");
+                return;
+            }
+            setSelectedIds([...selectedIds, id]);
+        }
+    };
+
+    const handleSetWeeklyPicks = async () => {
+        if (selectedIds.length === 0) return;
+
+        const note = prompt("Masukkan Catatan Editor (Opsional):", "Pilihan Redaksi Minggu Ini");
+        if (note === null) return; // Cancelled
+
+        setIsSettingPicks(true);
+        try {
+            await setWeeklyPicks(selectedIds, note);
+            alert("Berhasil update Weekly Picks!");
+            setSelectedIds([]);
+        } catch (error) {
+            console.error(error);
+            alert("Gagal update Weekly Picks.");
+        } finally {
+            setIsSettingPicks(false);
+        }
+    };
+
     // Filter Logic
     const filteredArticles = articles.filter(article => {
         const matchesSearch = article.meta.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -39,6 +77,8 @@ export default function ArticlesPage() {
         return matchesSearch && matchesStatus && matchesCategory;
     });
 
+    const isEditor = profile?.role === 'admin' || profile?.role === 'staff';
+
     return (
         <div>
             <header className="flex items-center justify-between mb-8">
@@ -46,13 +86,25 @@ export default function ArticlesPage() {
                     <h1 className="font-display text-2xl font-bold mb-1">Manajemen Artikel</h1>
                     <p className="text-neutral-500 text-sm">Kelola semua konten yang akan terbit di Warga Daily.</p>
                 </div>
-                <Link
-                    href="/dashboard/articles/new"
-                    className="flex items-center gap-2 bg-ink text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors"
-                >
-                    <Plus size={18} />
-                    Buat Artikel
-                </Link>
+                <div className="flex gap-3">
+                    {isEditor && selectedIds.length > 0 && (
+                        <button
+                            onClick={handleSetWeeklyPicks}
+                            disabled={isSettingPicks}
+                            className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors shadow-sm animate-in fade-in zoom-in duration-200"
+                        >
+                            <Star size={18} fill="currentColor" />
+                            {isSettingPicks ? "Menyimpan..." : `Set Weekly Picks (${selectedIds.length})`}
+                        </button>
+                    )}
+                    <Link
+                        href="/dashboard/articles/new"
+                        className="flex items-center gap-2 bg-ink text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors"
+                    >
+                        <Plus size={18} />
+                        Buat Artikel
+                    </Link>
+                </div>
             </header>
 
             {/* Filters */}
@@ -112,6 +164,7 @@ export default function ArticlesPage() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-neutral-50/50 border-b border-neutral-100 text-neutral-500 text-xs uppercase tracking-wider">
+                                {isEditor && <th className="px-6 py-4 w-10">Select</th>}
                                 <th className="px-6 py-4 font-medium">Judul</th>
                                 <th className="px-6 py-4 font-medium">Penulis</th>
                                 <th className="px-6 py-4 font-medium">Status</th>
@@ -121,7 +174,17 @@ export default function ArticlesPage() {
                         </thead>
                         <tbody className="text-sm divide-y divide-neutral-100">
                             {filteredArticles.map((article) => (
-                                <tr key={article.id} className="hover:bg-neutral-50/50 transition-colors">
+                                <tr key={article.id} className={cn("hover:bg-neutral-50/50 transition-colors", selectedIds.includes(article.id!) && "bg-blue-50/50")}>
+                                    {isEditor && (
+                                        <td className="px-6 py-4">
+                                            <input
+                                                type="checkbox"
+                                                className="rounded border-gray-300 text-primary focus:ring-primary"
+                                                checked={selectedIds.includes(article.id!)}
+                                                onChange={() => handleSelect(article.id!)}
+                                            />
+                                        </td>
+                                    )}
                                     <td className="px-6 py-4">
                                         <p className="font-bold text-ink mb-0.5 line-clamp-1">{article.meta.title}</p>
                                         <p className="text-neutral-400 text-xs">{article.meta.slug}</p>

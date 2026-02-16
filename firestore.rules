@@ -37,6 +37,12 @@ service cloud.firestore {
       allow delete: if (request.auth != null && resource.data.editorial.author_id == request.auth.uid) || isAdminOrStaff();
     }
 
+    // Site Settings (Weekly Picks, etc)
+    match /site_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdminOrStaff();
+    }
+
     // --- Specific Collection Rules (WargaPlus App) ---
 
     match /users/{userId} {
