@@ -56,18 +56,18 @@ export function BibliographyEditor({ value, onChange }: BibliographyEditorProps)
                 ))}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
                 <input
                     type="text"
                     placeholder="Judul Referensi"
-                    className="flex-1 text-sm p-2 bg-white border border-neutral-200 rounded-md focus:outline-none focus:border-primary"
+                    className="flex-[2] h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
                     value={newItem.title}
                     onChange={e => setNewItem({ ...newItem, title: e.target.value })}
                 />
                 <input
                     type="url"
                     placeholder="URL (https://...)"
-                    className="flex-1 text-sm p-2 bg-white border border-neutral-200 rounded-md focus:outline-none focus:border-primary"
+                    className="flex-[1] h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
                     value={newItem.url}
                     onChange={e => setNewItem({ ...newItem, url: e.target.value })}
                 />
@@ -75,7 +75,7 @@ export function BibliographyEditor({ value, onChange }: BibliographyEditorProps)
                     type="button"
                     onClick={handleAdd}
                     disabled={!newItem.title || !newItem.url}
-                    className="bg-neutral-900 text-white p-2 rounded-md hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="h-10 w-10 flex items-center justify-center bg-ink text-white rounded-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
                 >
                     <Plus size={18} />
                 </button>

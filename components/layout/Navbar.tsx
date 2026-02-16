@@ -6,10 +6,12 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth/AuthContext";
 
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const { user, loading } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -53,12 +55,23 @@ export function Navbar() {
 
                 {/* CTA */}
                 <div className="hidden md:block">
-                    <Link
-                        href="/login"
-                        className="bg-ink text-paper px-6 py-2.5 rounded-full font-medium text-sm hover:bg-neutral-800 transition-colors"
-                    >
-                        Kirim Tulisan
-                    </Link>
+                    {!loading && (
+                        user ? (
+                            <Link
+                                href="/dashboard"
+                                className="bg-primary text-white px-6 py-2.5 rounded-full font-medium text-sm hover:bg-primary/90 transition-colors shadow-sm"
+                            >
+                                Dashboard
+                            </Link>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="bg-ink text-paper px-6 py-2.5 rounded-full font-medium text-sm hover:bg-neutral-800 transition-colors"
+                            >
+                                Kirim Tulisan
+                            </Link>
+                        )
+                    )}
                 </div>
 
                 {/* Mobile Toggle */}
@@ -83,12 +96,26 @@ export function Navbar() {
                             <MobileNavLink href="/investigasi">Investigasi</MobileNavLink>
                             <MobileNavLink href="/opini">Opini</MobileNavLink>
                             <MobileNavLink href="/sejarah">Sejarah</MobileNavLink>
-                            <Link
-                                href="/login"
-                                className="bg-ink text-paper text-center py-3 rounded-full font-medium mt-4"
-                            >
-                                Kirim Tulisan
-                            </Link>
+
+                            {!loading && (
+                                user ? (
+                                    <Link
+                                        href="/dashboard"
+                                        className="bg-primary text-white text-center py-3 rounded-full font-medium mt-4 block"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Dashboard
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        href="/login"
+                                        className="bg-ink text-paper text-center py-3 rounded-full font-medium mt-4 block"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Kirim Tulisan
+                                    </Link>
+                                )
+                            )}
                         </div>
                     </motion.div>
                 )}
