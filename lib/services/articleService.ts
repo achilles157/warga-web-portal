@@ -86,7 +86,7 @@ export async function createArticle(
             updated_at: serverTimestamp(),
             published_at: null,
         },
-        bibliography: [],
+        bibliography: data.bibliography || [],
         metrics: {
             views: 0,
             app_clicks: 0,
@@ -95,6 +95,51 @@ export async function createArticle(
 
     const docRef = await addDoc(collection(db, ARTICLES_COLLECTION), payload);
     return docRef.id;
+}
+
+/**
+ * Updates an existing article.
+ */
+export async function updateArticle(id: string, data: Partial<Article>) {
+    const docRef = doc(db, ARTICLES_COLLECTION, id);
+
+    // Flatten the nested object for Firestore update
+    // We use dot notation for nested fields to avoid overwriting the entire object
+    const updatePayload: any = {};
+
+    if (data.meta) {
+        if (data.meta.title) updatePayload["meta.title"] = data.meta.title;
+        if (data.meta.subtitle) updatePayload["meta.subtitle"] = data.meta.subtitle;
+        if (data.meta.slug) updatePayload["meta.slug"] = data.meta.slug;
+        if (data.meta.cover_image) updatePayload["meta.cover_image"] = data.meta.cover_image;
+        if (data.meta.tags) updatePayload["meta.tags"] = data.meta.tags;
+        if (data.meta.read_time_minutes) updatePayload["meta.read_time_minutes"] = data.meta.read_time_minutes;
+    }
+
+    if (data.content) {
+        if (data.content.body) updatePayload["content.body"] = data.content.body;
+        if (data.content.is_locked !== undefined) updatePayload["content.is_locked"] = data.content.is_locked;
+        if (data.content.lock_cta_text) updatePayload["content.lock_cta_text"] = data.content.lock_cta_text;
+        if (data.content.linked_module_id) updatePayload["content.linked_module_id"] = data.content.linked_module_id;
+        if (data.content.linked_sub_module_id) updatePayload["content.linked_sub_module_id"] = data.content.linked_sub_module_id;
+    }
+
+    if (data.editorial) {
+        if (data.editorial.status) updatePayload["editorial.status"] = data.editorial.status;
+        if (data.editorial.author_name) updatePayload["editorial.author_name"] = data.editorial.author_name;
+        // Handle published_at logic in the service or caller? 
+        // Usually better in service if it's a simple state change, but caller might want specific timestamp.
+        // For now, allow direct update if passed.
+        if (data.editorial.published_at) updatePayload["editorial.published_at"] = data.editorial.published_at;
+
+        updatePayload["editorial.updated_at"] = serverTimestamp();
+    }
+
+    if (data.bibliography) {
+        updatePayload["bibliography"] = data.bibliography;
+    }
+
+    await updateDoc(docRef, updatePayload);
 }
 
 /**

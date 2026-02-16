@@ -3,8 +3,8 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
-import { getArticleById, Article, ArticleStatus } from "@/lib/services/articleService";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { getArticleById, updateArticle, Article, ArticleStatus } from "@/lib/services/articleService";
+import { serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, Save, Loader2, Lock } from "lucide-react";
@@ -89,27 +89,41 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
 
         setSaving(true);
         try {
-            const docRef = doc(db, "articles_collection", articleId);
-            const updatePayload: any = {
-                "meta.title": formData.title,
-                "meta.subtitle": formData.subtitle,
-                "meta.slug": formData.slug,
-                "meta.tags": [formData.category],
-                "content.body": formData.body,
-                "content.is_locked": formData.is_locked,
-                "content.lock_cta_text": formData.lock_cta_text,
-                "content.linked_module_id": formData.linked_module_id,
-                "content.linked_sub_module_id": formData.linked_sub_module_id,
-                "editorial.status": formData.status,
-                "editorial.updated_at": serverTimestamp(),
-                "bibliography": formData.bibliography
+            const updatePayload: Partial<Article> = {
+                meta: {
+                    title: formData.title,
+                    subtitle: formData.subtitle,
+                    slug: formData.slug,
+                    tags: [formData.category],
+                    // We don't overwrite cover_image here unless we had an uploader
+                    // But for now, we just pass what we have if we want, 
+                    // or we rely on the service to only update what's passed.
+                    // The service checks "if (data.meta)", so we should structure it fully if we pass "meta".
+                    // However, our service implementation is granular. 
+                    // Let's pass the full meta structure we want to update.
+                    cover_image: formData.cover_image,
+                    read_time_minutes: 0 // preserved/ignored
+                },
+                content: {
+                    body: formData.body,
+                    is_locked: formData.is_locked,
+                    lock_cta_text: formData.lock_cta_text,
+                    linked_module_id: formData.linked_module_id,
+                    linked_sub_module_id: formData.linked_sub_module_id
+                },
+                editorial: {
+                    status: formData.status,
+                } as any, // Cast to any because Partial<Article> doesn't make nested props partial
+                bibliography: formData.bibliography
             };
 
             if (formData.status === 'published') {
-                updatePayload["editorial.published_at"] = serverTimestamp();
+                // We need to explicitly pass this if we want to update it
+                // @ts-ignore
+                updatePayload.editorial.published_at = serverTimestamp();
             }
 
-            await updateDoc(docRef, updatePayload);
+            await updateArticle(articleId, updatePayload);
             router.push("/dashboard/articles");
         } catch (err) {
             console.error(err);
