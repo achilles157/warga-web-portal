@@ -56,21 +56,25 @@ export function BibliographyEditor({ value, onChange }: BibliographyEditorProps)
                 ))}
             </div>
 
-            <div className="flex gap-2 items-center">
-                <input
-                    type="text"
-                    placeholder="Judul Referensi"
-                    className="flex-[2] h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
-                    value={newItem.title}
-                    onChange={e => setNewItem({ ...newItem, title: e.target.value })}
-                />
-                <input
-                    type="url"
-                    placeholder="URL (https://...)"
-                    className="flex-[1] h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
-                    value={newItem.url}
-                    onChange={e => setNewItem({ ...newItem, url: e.target.value })}
-                />
+            <div className="flex gap-2 items-end flex-wrap">
+                <div className="flex-[2] min-w-[200px] flex flex-col gap-1">
+                    <input
+                        type="text"
+                        placeholder="Judul Referensi"
+                        className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
+                        value={newItem.title}
+                        onChange={e => setNewItem({ ...newItem, title: e.target.value })}
+                    />
+                </div>
+                <div className="flex-[1] min-w-[150px] flex flex-col gap-1">
+                    <input
+                        type="url"
+                        placeholder="URL (https://...)"
+                        className="w-full h-10 text-sm px-3 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-primary transition-colors"
+                        value={newItem.url}
+                        onChange={e => setNewItem({ ...newItem, url: e.target.value })}
+                    />
+                </div>
                 <button
                     type="button"
                     onClick={handleAdd}
