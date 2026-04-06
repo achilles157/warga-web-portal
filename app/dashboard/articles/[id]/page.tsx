@@ -19,6 +19,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [articleId, setArticleId] = useState<string>("");
+    const [initialStatus, setInitialStatus] = useState<ArticleStatus>("draft");
 
     const [formData, setFormData] = useState<{
         title: string;
@@ -71,6 +72,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                         status: data.editorial.status,
                         bibliography: data.bibliography || []
                     });
+                    setInitialStatus(data.editorial.status);
                 }
             } catch (error) {
                 console.error("Failed to load article:", error);
@@ -124,6 +126,25 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
             }
 
             await updateArticle(articleId, updatePayload);
+
+            // Send notification if status changed to pending_review
+            if (formData.status === 'pending_review' && initialStatus !== 'pending_review') {
+                try {
+                    await fetch('/api/notify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            articleId: articleId,
+                            articleTitle: formData.title,
+                            authorName: profile.display_name,
+                            status: formData.status
+                        })
+                    });
+                } catch (e) {
+                    console.error("Failed to send notification email", e);
+                }
+            }
+
             router.push("/dashboard/articles");
         } catch (err) {
             console.error(err);
