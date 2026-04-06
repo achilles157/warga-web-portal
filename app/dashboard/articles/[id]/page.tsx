@@ -162,9 +162,15 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-white p-6 rounded-xl border border-neutral-200">
-                        <input
-                            type="text"
-                            className="w-full text-3xl font-display font-bold placeholder:text-neutral-300 focus:outline-none mb-4"
+                        <textarea
+                            ref={(el) => {
+                                if (el) {
+                                    el.style.height = 'auto';
+                                    el.style.height = el.scrollHeight + 'px';
+                                }
+                            }}
+                            className="w-full text-3xl font-display font-bold placeholder:text-neutral-300 focus:outline-none mb-4 resize-none overflow-hidden"
+                            rows={1}
                             value={formData.title}
                             onChange={e => setFormData({ ...formData, title: e.target.value })}
                             required
